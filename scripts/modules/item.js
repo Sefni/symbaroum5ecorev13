@@ -12,11 +12,10 @@ export class ItemSyb5e {
 	static parent = {};
 
 	static hooks() {
-		//Hooks.on('dnd5e.preDisplayCard', this.flagWithCorruption);
-    Hooks.on('dnd5e.preItemUsageConsumption', this.swapCorruptionConsumption);
-    Hooks.on('dnd5e.itemUsageConsumption', this.generateCorruptionUsage);
+		/* dnd5e 5.x Activity system hooks replace old item usage hooks */
+    Hooks.on('dnd5e.preActivityConsumption', this.swapCorruptionConsumption);
+    Hooks.on('dnd5e.activityConsumption', this.generateCorruptionUsage);
     Hooks.on('dnd5e.renderChatMessage', this.applyCorruption);
-    //Hooks.on('renderChatLog', this.setChatListeners)
 	}
 
 	static patch() {
@@ -128,25 +127,31 @@ export class ItemSyb5e {
 		return coreHasDamage || consumedDamage;
 	}
 
-  static swapCorruptionConsumption(item, usage) {
-		/* if we are a syb actor, modify the current usage updates as to not
-		 * confuse the core spellcasting logic */
-    if (item.actor.isSybActor()) {
-      /* if we are consuming a spell slot, treat it as adding corruption instead */
-			/* Note: consumeSpellSlot only valid for _leveled_ spells. All others MUST add corruption if a valid expression */
-			usage.consumeCorruption = !!usage.consumeSpellSlot ||
-				(parseInt(item.system?.level ?? 0) < 1 && item.corruption.expression != game.syb5e.CONFIG.DEFAULT_ITEM.corruptionOverride.expression);
+  static swapCorruptionConsumption(activity, usageConfig, messageConfig) {
+		/* dnd5e 5.x Activity system: activity.item gives the Item */
+		const item = activity.item;
+		if (!item?.actor?.isSybActor()) return;
 
-			/* We are _never_ consuming spell slots in syb5e */
-			usage.consumeSpellSlot = false;
-    }
+		/* if we are consuming a spell slot, treat it as adding corruption instead */
+		/* Note: consumeSpellSlot only valid for _leveled_ spells. All others MUST add corruption if a valid expression */
+		usageConfig.consumeCorruption = !!usageConfig.consume?.spellSlot ||
+			(parseInt(item.system?.level ?? 0) < 1 && item.corruption.expression != game.syb5e.CONFIG.DEFAULT_ITEM.corruptionOverride.expression);
+
+		/* We are _never_ consuming spell slots in syb5e */
+		if (usageConfig.consume) {
+			usageConfig.consume.spellSlot = false;
+		}
   }
 
-	static generateCorruptionUsage(item, usage, chatData, updates) {
+	static generateCorruptionUsage(activity, usageConfig, messageConfig, updates) {
+		/* dnd5e 5.x Activity system: 4th param is ActivityUsageUpdates */
+		const item = activity.item;
+		if (!item?.actor?.isSybActor()) return;
+
 		/* if we are consuming corruption, the needed chatmessage data is inserted.
      * otherwise, we ensure there is no 'last consumption' field via item updates.
      */
-    const sybUpdates = Spellcasting._getUsageUpdates(item, usage, chatData);
+    const sybUpdates = Spellcasting._getUsageUpdates(item, usageConfig, messageConfig);
     foundry.utils.mergeObject(updates, sybUpdates);
 	}
 
@@ -171,12 +176,14 @@ export class ItemSyb5e {
     const corruption = foundry.utils.getProperty(message, game.syb5e.CONFIG.PATHS.corruption.root + '.last') ?? {};
 
     /* Do not re-eval previously rolled corruption values */
-    if ( message.author.isSelf 
+    if ( message.author.isSelf
       && ('expression' in corruption)
       && !('total' in corruption)) {
 
-      const {itemUuid = null} = message.getFlag('dnd5e','use'); 
-      const item = await fromUuid(itemUuid);
+      /* dnd5e 5.x: item UUID stored at flags.dnd5e.item.uuid */
+      const itemUuid = message.getFlag('dnd5e', 'item.uuid');
+      const item = itemUuid ? await fromUuid(itemUuid) : null;
+      if (!item) return;
       const actor = item.actor;
 
       const cRoll = new Roll(`ceil(${corruption.expression})`);
