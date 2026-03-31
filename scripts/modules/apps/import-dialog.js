@@ -354,10 +354,15 @@ export class ModuleImportDialog {
 		}
 		await pack.getIndex();
 		this.adventureId = pack.index.find((a) => a.name === adventurePackName)?._id;
-		logger.info(`For ${adventurePackName} the Id is: ${this.adventureId}`);
+		if (!this.adventureId) {
+			console.warn(`Adventure "${adventurePackName}" not found in pack "${adventurePack}". Pack may be empty — skipping import.`);
+			await this.setImportedState(true);
+			await this.updateLastMigratedVersion();
+			return;
+		}
 		const adventure = await pack.getDocument(this.adventureId);
 		if (!adventure) {
-			logger.error(`Cannot locate adventure "${adventurePackName}" in "${pack.name}"`);
+			console.warn(`Cannot load adventure document "${adventurePackName}" — skipping import.`);
 			return;
 		}
 		await adventure.sheet.render(true);
