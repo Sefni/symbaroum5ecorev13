@@ -1,6 +1,7 @@
-export class SymbaroumJournalSheet extends JournalSheet {
+/* Foundry v13: JournalSheet → JournalEntrySheet (AppV2) */
+export class SymbaroumJournalSheet extends JournalEntrySheet {
     get journal() {
-        return this.object;
+        return this.document;
     }
 
     _onConfigureSheet(event) {
@@ -14,16 +15,14 @@ export class SymbaroumJournalSheet extends JournalSheet {
 
 export class SymbaroumWide extends SymbaroumJournalSheet {
     static NAME = 'SymbaroumWide';
-    
+
     static register() {
       Journal.registerSheet('SYB5E', SymbaroumWide, { label: game.i18n.localize('SYB5E.journal.widejournal.name'), makeDefault: false });
     }
 
-    static get defaultOptions() {
-        const options = super.defaultOptions;
-        options.width = 1268
-        // edit below for a custom css class
-        options.classes.push('symbaroum-dnd5e-mod');
-        return options;
-    }
+    /* AppV2: static DEFAULT_OPTIONS replaces static get defaultOptions() */
+    static DEFAULT_OPTIONS = {
+        classes: ['symbaroum-dnd5e-mod'],
+        position: { width: 1268 },
+    };
 }
