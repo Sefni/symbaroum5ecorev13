@@ -6,7 +6,7 @@ import { COMMON } from './../../common.js';
  * @extends Dialog A FormApplication class in Foundry VTT responsible for creating pop-up dialogues.
  */
 //TODO replace all relevant display text with localization
-export class ModuleImportDialog extends Dialog {
+export class ModuleImportDialog {
 	/* Default class data for overrides */
 	static get moduleName() {
 		return '**NONE**';
@@ -97,11 +97,6 @@ export class ModuleImportDialog extends Dialog {
 		requiredDnDCoreVersion,
 		acFolderIDs,
 	} = ModuleImportDialog) {
-		super({
-			content: '',
-			buttons: {},
-		});
-
 		/* store provided identifying information */
 		this.moduleName = moduleName;
 		this.moduleTitle = moduleTitle;
@@ -353,6 +348,11 @@ export class ModuleImportDialog extends Dialog {
 		// Will overwrite existing assets.
 		//
 		const pack = game.packs.get(adventurePack);
+		if (!pack) {
+			console.warn(`Pack "${adventurePack}" not found. Skipping import.`);
+			return;
+		}
+		await pack.getIndex();
 		this.adventureId = pack.index.find((a) => a.name === adventurePackName)?._id;
 		logger.info(`For ${adventurePackName} the Id is: ${this.adventureId}`);
 		const adventure = await pack.getDocument(this.adventureId);
@@ -367,6 +367,8 @@ export class ModuleImportDialog extends Dialog {
 	async moduleUpdate(toMigrationVersion, adventurePack, adventurePackName) {
 		const thisMigration = this.migrationData[toMigrationVersion] ?? { data: [] };
 		const pack = game.packs.get(adventurePack);
+		if (!pack) return;
+		await pack.getIndex();
 		const adventureId = pack.index.find((a) => a.name === adventurePackName)?._id;
 		const tPack = await pack.getDocument(adventureId);
 		const aPack = tPack.toObject();
@@ -471,19 +473,19 @@ export class ModuleImportDialog extends Dialog {
 	}
 
 	async confirmMigrate() {
-		return Dialog.prompt({
-			title: `Ruins of Symbaroum 5e Updater`,
+		return foundry.applications.api.DialogV2.prompt({
+			window: { title: `Ruins of Symbaroum 5e Updater` },
 			content: 'V9 to V10 Migration',
-			label: 'Okay!',
+			ok: { label: 'Okay!' },
 			rejectClose: true,
 		});
 	}
 
 	async confirmUpdate(toVersion) {
-		return Dialog.prompt({
-			title: `Ruins of Symbaroum 5e Updater`,
+		return foundry.applications.api.DialogV2.prompt({
+			window: { title: `Ruins of Symbaroum 5e Updater` },
 			content: this.generatePatchNotes(toVersion),
-			label: 'Okay!',
+			ok: { label: 'Okay!' },
 			rejectClose: true,
 		});
 	}
@@ -491,20 +493,20 @@ export class ModuleImportDialog extends Dialog {
 	async checkVersion() {
 		const currentDnD = game.system.version;
 		if (foundry.utils.isNewerVersion(this.requiredDnDCoreVersion, currentDnD)) {
-			throw Dialog.prompt({
-				title: 'Version Check',
-				content: `<h2>Failed to Import</h2><p>Your DnD5e - Fith Edition System system version (${current})is below the minimum required version (${this.requiredDnDCoreVersion}).</p><p>Please update your system before proceeding.</p>`,
-				label: 'Okay!',
-				callback: () => ui.notifications.warn('Aborted importing of compendium content. Update your dnd5e system and try again.'),
+			ui.notifications.warn('Aborted importing of compendium content. Update your dnd5e system and try again.');
+			throw foundry.applications.api.DialogV2.prompt({
+				window: { title: 'Version Check' },
+				content: `<h2>Failed to Import</h2><p>Your DnD5e - Fifth Edition System version (${currentDnD}) is below the minimum required version (${this.requiredDnDCoreVersion}).</p><p>Please update your system before proceeding.</p>`,
+				ok: { label: 'Okay!' },
 			});
 		}
 
 		if (foundry.utils.isNewerVersion(this.requiredSybCoreVersion, this.coreVersion)) {
-			throw Dialog.prompt({
-				title: 'Version Check',
-				content: `<h2>Failed to Import</h2><p>Your Symbaroum 5e Core system version (${this.coreVersion})is below the minimum required version (${this.requiredSybCoreVersion}).</p><p>Please update before proceeding.</p>`,
-				label: 'Okay!',
-				callback: () => ui.notifications.warn('Aborted importing of compendium content. Update your Symbaroum 5e Core module and try again.'),
+			ui.notifications.warn('Aborted importing of compendium content. Update your Symbaroum 5e Core module and try again.');
+			throw foundry.applications.api.DialogV2.prompt({
+				window: { title: 'Version Check' },
+				content: `<h2>Failed to Import</h2><p>Your Symbaroum 5e Core system version (${this.coreVersion}) is below the minimum required version (${this.requiredSybCoreVersion}).</p><p>Please update before proceeding.</p>`,
+				ok: { label: 'Okay!' },
 			});
 		}
 	}
@@ -514,6 +516,8 @@ export class ModuleImportDialog extends Dialog {
 		// Non distructive import that only imports assets missing in the world.
 		//
 		const pack = game.packs.get(adventurePack);
+		if (!pack) return;
+		await pack.getIndex();
 		const adventureId = pack.index.find((a) => a.name === adventurePackName)?._id;
 		logger.info(`For ${adventurePackName} the Id is: ${adventureId}`);
 		const adventure = await pack.getDocument(adventureId);
@@ -624,6 +628,8 @@ export class ModuleImportDialog extends Dialog {
 			// Non distructive import that only imports assets missing in the world.
 			//
 			const pack = game.packs.get(adventurePack);
+			if (!pack) return;
+			await pack.getIndex();
 			const adventureId = pack.index.find((a) => a.name === adventurePackName)?._id;
 			logger.info(`For ${adventurePackName} the Id is: ${adventureId}`);
 			const adventure = await pack.getDocument(adventureId);
