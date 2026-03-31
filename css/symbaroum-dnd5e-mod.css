@@ -61,6 +61,25 @@
   }
 }
 
+/* dnd5e 5.x AppV2: fix text visibility on dark panels */
+.syb5e .card .card-header,
+.syb5e .card .card-header h4,
+.syb5e .pills-group .pill,
+.syb5e .sidebar .name,
+.syb5e [data-application-part="sidebar"] label,
+.syb5e [data-application-part="sidebar"] span,
+.syb5e [data-application-part="sidebar"] .meter-label {
+  color: var(--dnd5e-color-light-1, #ebe5d8);
+}
+
+/* Ensure skill names, saving throws, proficiency text are visible */
+.syb5e .skills .skill .label,
+.syb5e .saves .save .label,
+.syb5e .skills .skill,
+.syb5e .saves .save {
+  color: var(--dnd5e-color-light-1, #ebe5d8);
+}
+
 .syb5e.sheet.actor .editor .tox-toolbar-overlord,
 .syb5e.sheet.actor .editor .tox-toolbar__primary {
   background-color: #fff;
