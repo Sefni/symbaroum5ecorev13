@@ -15,7 +15,8 @@ export class Syb5eItemSheet {
 	}
 
 	/* Handles injection of new SYB5E properties that are NOT handled
-	 * implicitly by a game.dnd5e.config object
+	 * implicitly by a game.dnd5e.config object.
+	 * AppV2: html is an HTMLElement (not jQuery).
 	 */
 	static async _renderItemSheet5e(sheet, html /*, options*/) {
 		/* need to insert checkbox for favored and put a favored 'badge' on the description tab */
@@ -49,52 +50,54 @@ export class Syb5eItemSheet {
 			const favoredSelect = await renderTemplate(`${COMMON.DATA.path}/templates/items/parts/spell-favored.html`, data);
 			const favoredBadge = await renderTemplate(`${COMMON.DATA.path}/templates/items/parts/spell-favored-badge.html`, data);
 
-			/* adjust spell prep div style to <label style="max-width: fit-content;"> */
-			const preparedCheckbox = html.find('label.checkbox.prepared');
-			const prepModeLineLabel = preparedCheckbox.parent().prev();
-			prepModeLineLabel.css('max-width', 'fit-content');
+			/* adjust spell prep div style — vanilla DOM */
+			const preparedCheckbox = html.querySelector('label.checkbox.prepared');
+			if (preparedCheckbox) {
+				const prepModeLineLabel = preparedCheckbox.parentElement?.previousElementSibling;
+				if (prepModeLineLabel) prepModeLineLabel.style.maxWidth = 'fit-content';
 
-			/* insert our favored select menu */
-			preparedCheckbox.after(favoredSelect);
+				/* insert our favored select menu */
+				preparedCheckbox.insertAdjacentHTML('afterend', favoredSelect);
+			}
 
 			/* insert our favored badge */
-			const itemPropBadges = html.find('.properties-list li');
-			itemPropBadges.last().after(favoredBadge);
+			const itemPropBadges = html.querySelectorAll('.properties-list li');
+			const lastBadge = itemPropBadges[itemPropBadges.length - 1];
+			if (lastBadge) lastBadge.insertAdjacentHTML('afterend', favoredBadge);
 
 			/* find the "Cost (GP)" label (if it exists) */
-			const costLabel = html.find('[name="system.materials.cost"]').prev();
-			if (costLabel.length > 0) {
-				costLabel.text(COMMON.localize('SYB5E.Currency.CostThaler'));
+			const costInput = html.querySelector('[name="system.materials.cost"]');
+			const costLabel = costInput?.previousElementSibling;
+			if (costLabel) {
+				costLabel.textContent = COMMON.localize('SYB5E.Currency.CostThaler');
 			}
 		}
 
 		/* need to rename "subclass" to "approach" */
 		if (item.type == 'subclass') {
 			/* get the subclass text field entry */
-			const subclassLabel = html.find('.header-details .item-type');
-			if (subclassLabel.length > 0) {
-				subclassLabel.text(COMMON.localize('SYB5E.Item.Class.Approach'));
+			const subclassLabel = html.querySelector('.header-details .item-type');
+			if (subclassLabel) {
+				subclassLabel.textContent = COMMON.localize('SYB5E.Item.Class.Approach');
 			} else {
 				logger.debug('Could not find subclass label field in class item render.');
 			}
 
 			/* remove spellcasting progression not in syb5e */
-			const filterList = Object.keys(game.syb5e.CONFIG.SPELL_PROGRESSION).reduce((acc, key) => {
-				if (acc.length == 0) {
-					/* dont put the comma in front */
-					acc += `[value="${key}"]`;
-				} else {
-					acc += `, [value="${key}"]`;
-				}
-				return acc;
-			}, '');
-			const progressionSelect = html.find('[name="system.spellcasting.progression"]');
-			progressionSelect.children().not(filterList).remove();
+			const keepSelector = Object.keys(game.syb5e.CONFIG.SPELL_PROGRESSION)
+				.map((key) => `[value="${key}"]`)
+				.join(', ');
+			const progressionSelect = html.querySelector('[name="system.spellcasting.progression"]');
+			if (progressionSelect) {
+				[...progressionSelect.children].forEach((child) => {
+					if (!child.matches(keepSelector)) child.remove();
+				});
+			}
 		}
 
 		/* we want to add a custom corruption field if there is a general resource consumption field */
-		const consumeGroup = html.find('.form-group.consumption');
-		if (consumeGroup.length > 0) {
+		const consumeGroup = html.querySelector('.form-group.consumption');
+		if (consumeGroup) {
 			const currentOverrides = item.corruptionOverride;
 			let data = {
 				corruptionType: {
@@ -119,7 +122,7 @@ export class Syb5eItemSheet {
 			}
 
 			const corruptionGroup = await renderTemplate(`${COMMON.DATA.path}/templates/items/parts/item-corruption.html`, data);
-			consumeGroup.after(corruptionGroup);
+			consumeGroup.insertAdjacentHTML('afterend', corruptionGroup);
 		}
 	}
 }

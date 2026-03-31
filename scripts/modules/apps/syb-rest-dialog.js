@@ -18,17 +18,6 @@ export class SybRestDialog extends Dialog {
 		this._denom = null;
 
 		this.type = type;
-
-		/* store our various rest options */
-		//this.options = {newDay, autoHD, autoHDThreshold};
-
-		/**
-		 * Grab stock dnd5e rest functions we want to re-use
-		 * @type {function}
-		 */
-		this._onRollHitDie = dnd5e.applications.actor.ShortRestDialog.prototype._onRollHitDie.bind(this);
-
-		this._getCoreData = dnd5e.applications.actor.ShortRestDialog.prototype.getData.bind(this);
 	}
 
 	/* -------------------------------------------- */
@@ -55,9 +44,45 @@ export class SybRestDialog extends Dialog {
 
 	/* -------------------------------------------- */
 
+	/**
+	 * dnd5e 5.x: ShortRestDialog is AppV2 and no longer exposes
+	 * getData or _onRollHitDie. We implement our own.
+	 */
+	_getCoreData() {
+		const classes = this.actor.itemTypes.class;
+		const availableHD = {};
+		let canRoll = false;
+
+		for (const cls of classes) {
+			const denom = cls.system.hitDice;
+			if (!denom) continue;
+			const used = cls.system.hitDiceUsed ?? 0;
+			const available = Math.max(cls.system.levels - used, 0);
+			if (available > 0) canRoll = true;
+			if (!availableHD[denom]) availableHD[denom] = 0;
+			availableHD[denom] += available;
+		}
+
+		return {
+			actor: this.actor,
+			canRoll,
+			denomination: this._denom || Object.keys(availableHD)[0] || 'd8',
+			availableHD,
+		};
+	}
+
+	async _onRollHitDie(event) {
+		event.preventDefault();
+		const button = event.currentTarget;
+		this._denom = button.form.hd.value;
+		await this.actor.rollHitDie(this._denom);
+		this.render();
+	}
+
+	/* -------------------------------------------- */
+
 	/** @override */
 	getData() {
-		/* leverage dnd5e functions */
 		const data = this._getCoreData();
 
 		const restTypes = game.syb5e.CONFIG.REST_TYPES;
@@ -121,7 +146,8 @@ export class SybRestDialog extends Dialog {
 					icon: '<i class="fas fa-bed"></i>',
 					label: game.i18n.localize('DND5E.Rest'),
 					callback: (html) => {
-						const newDay = html.find('input[name="newDay"]')[0].checked;
+						const el = html instanceof HTMLElement ? html : html[0];
+						const newDay = el?.querySelector('input[name="newDay"]')?.checked ?? false;
 						resolve(newDay);
 					},
 				},

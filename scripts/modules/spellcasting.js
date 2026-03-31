@@ -22,60 +22,13 @@ export class Spellcasting {
 	}
 
 	static patch() {
-		this._patchAbilityUseDialog();
+		/* AbilityUseDialog no longer exists in dnd5e 5.x.
+		 * Corruption info is now displayed via chat messages. */
 	}
 
 	static hooks() {
-		Hooks.on('renderAbilityUseDialog', this._renderAbilityUseDialog);
-	}
-
-	static _patchAbilityUseDialog() {
-		const targetCls = dnd5e.applications.item.AbilityUseDialog;
-		const targetPath = 'dnd5e.applications.item.AbilityUseDialog';
-
-		const patch = {
-			_getSpellData: {
-				value: Spellcasting.getSpellData,
-				mode: 'WRAPPER',
-			},
-		};
-
-		COMMON.patch(targetCls, targetPath, patch);
-	}
-
-	static async getSpellData(wrapped, actorData, itemData, returnData) {
-		await wrapped(actorData, itemData, returnData);
-
-		const actor = returnData.item?.actor;
-
-		/* only modify the spell data if this is an syb actor */
-		if (actor?.isSybActor() ?? false) {
-			await Spellcasting._getSpellData(actor, itemData, returnData);
-		}
-
-		logger.debug('_getSpellData result:', returnData);
-	}
-
-	static _renderAbilityUseDialog(app, html /*, data*/) {
-		const actor = app.item?.actor;
-
-		/* only modify syb actors */
-		if (!actor || !actor.isSybActor()) return;
-
-		/* only modify spell use dialogs */
-		if (app.item?.type !== 'spell') return;
-
-		/* get all text elements */
-		const textNode = html[0].getElementsByTagName('input')?.consumeSpellSlot?.nextSibling;
-
-		if (!textNode) {
-			// logger.error(COMMON.localize('SYB5E.Error.HTMLParse'));
-      return;
-		}
-
-		textNode.textContent = COMMON.localize('SYB5E.Corruption.GainQuestion');
-
-		return;
+		/* renderAbilityUseDialog no longer exists in dnd5e 5.x.
+		 * The Activity usage dialog replaces it. */
 	}
 
 	/* MECHANICS HELPERS */
@@ -229,54 +182,7 @@ export class Spellcasting {
 
 	/** PATCH FUNCTIONS **/
 
-	static async _getSpellData(actor5e, itemData, returnData) {
-		let errors = [];
-		/****************
-		 * Needed Info:
-		 * - spellLevels: {array} of {level: 1, label: '1st Level (0 Slots)', canCast: true, hasSlots: false}
-		 * - errors: {array<string>}: clear out spell slot error from base dnd5e, add our own.
-		 *     - exceeding max spell level
-		 * - consumeSpellSlot: {boolean}: always true (consume slot = add corruption)
-		 * - canUse: {boolean}: always true? exceeding max corruption is a choice
-		 */
-
-		const maxLevel =
-			actor5e.system.details.cr == undefined
-				? Spellcasting._maxSpellLevelByClass(Object.values(actor5e.classes))
-				: Spellcasting._maxSpellLevelNPC(actor5e.system);
-		let spellLevels = [];
-
-		const addSpellLevel = (level) => {
-			spellLevels.push({
-				level,
-				label: COMMON.localize(`DND5E.SpellLevel${level}`) + ` (${Spellcasting._corruptionExpression(returnData.item, level).expression})`,
-				canCast: true,
-				hasSlots: true,
-			});
-		};
-
-		for (let level = itemData.level; level <= maxLevel.level; level++) {
-			addSpellLevel(level);
-		}
-
-		if (spellLevels.length < 1) {
-			errors.push(COMMON.localize('SYB5E.Error.SpellLevelExceedsMax'));
-
-			/* Add an entry for this spell in particular */
-			addSpellLevel(itemData.level);
-		}
-
-		/* generate current corruption status as a reminder */
-		const { value, max } = actor5e.corruption;
-		const note = COMMON.localize('SYB5E.Corruption.ShortDesc', { value, max });
-
-		const sybData = { note, errors, spellLevels, consumeSpellSlot: true, canUse: true };
-		foundry.utils.mergeObject(returnData, sybData);
-	}
-
-	static _getUsageUpdates(item, { consumeCorruption }, chatData) {
-		/* mirror core dnd5e structure */
-		//const actorUpdates = {};
+	static _getUsageUpdates(item, { consumeCorruption }, messageConfig) {
 		const itemUpdates = {};
 
 		if (consumeCorruption) {
@@ -286,22 +192,19 @@ export class Spellcasting {
 			/* Generate and simplify rolldata strings for final rollable formula post-render */
 			const expression = new Roll(`${corruptionInfo.expression}`, item.getRollData()).evaluateSync({ strict: false, allowStrings: true }).formula;
 
-			/* store this corruption expression */
+			/* store this corruption expression in the chat message flags */
 			const lastCorruptionField = game.syb5e.CONFIG.PATHS.corruption.root + '.last';
-      foundry.utils.setProperty(chatData, lastCorruptionField, {
+			if (!messageConfig.data) messageConfig.data = {};
+			foundry.utils.setProperty(messageConfig.data, lastCorruptionField, {
 				expression,
 				type: corruptionInfo.type,
 			});
 
-			/* temporarily set the gained corruption in the item data for use in damage roll expressions */
-			//foundry.utils.setProperty(item, lastCorruptionField, itemUpdates[lastCorruptionField]);
+			logger.debug('Cached corruption roll:', messageConfig.data[lastCorruptionField]);
 
-			logger.debug('Cached corruption roll:', chatData[lastCorruptionField]);
-
-    } else {
+		} else {
 			/* clear out the previously stored corruption results, if any */
 			itemUpdates[game.syb5e.CONFIG.PATHS.delete.corruption] = null;
-			//item.updateSource({ [game.syb5e.CONFIG.PATHS.delete.corruption]: null });
 		}
 
 		/* some "fake" items dont have an ID, try to handle this... */
