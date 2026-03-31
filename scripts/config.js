@@ -168,7 +168,10 @@ export class SYB5E {
   }
 
   static _preTranslateConfig() {
-    globalThis.game.dnd5e.config.limitedUsePeriods.er = COMMON.localize('SYB5E.Rest.Extended');
+    globalThis.game.dnd5e.config.limitedUsePeriods.er = {
+      label: COMMON.localize('SYB5E.Rest.Extended'),
+      abbreviation: 'ER',
+    };
 
     /* Add in "Greater Artifact" rarity for items */
     globalThis.game.dnd5e.config.itemRarity.greaterArtifact = COMMON.localize('SYB5E.Item.Rarity.GreaterArtifact');
@@ -181,34 +184,34 @@ export class SYB5E {
 
     /* Extend dnd5e weapon properties */
     const weaProps = {
-        are: { label: 'SYB5E.Item.WeaponProps.AreaEffect' },
-        bal: { label: 'SYB5E.Item.WeaponProps.Balanced' },
-        crw: { label: 'SYB5E.Item.WeaponProps.Crewed' },
-        con: { label: 'SYB5E.Item.WeaponProps.Concealed' },
-        dim: { label: 'SYB5E.Item.WeaponProps.DeepImpact' },
-        ens: { label: 'SYB5E.Item.WeaponProps.Ensnaring' },
-        imm: { label: 'SYB5E.Item.WeaponProps.Immobile' },
-        msv: { label: 'SYB5E.Item.WeaponProps.Massive' },
-        res: { label: 'SYB5E.Item.WeaponProps.Restraining' },
-        sge: { label: 'SYB5E.Item.WeaponProps.Siege' },
+        are: { label: COMMON.localize('SYB5E.Item.WeaponProps.AreaEffect') },
+        bal: { label: COMMON.localize('SYB5E.Item.WeaponProps.Balanced') },
+        crw: { label: COMMON.localize('SYB5E.Item.WeaponProps.Crewed') },
+        con: { label: COMMON.localize('SYB5E.Item.WeaponProps.Concealed') },
+        dim: { label: COMMON.localize('SYB5E.Item.WeaponProps.DeepImpact') },
+        ens: { label: COMMON.localize('SYB5E.Item.WeaponProps.Ensnaring') },
+        imm: { label: COMMON.localize('SYB5E.Item.WeaponProps.Immobile') },
+        msv: { label: COMMON.localize('SYB5E.Item.WeaponProps.Massive') },
+        res: { label: COMMON.localize('SYB5E.Item.WeaponProps.Restraining') },
+        sge: { label: COMMON.localize('SYB5E.Item.WeaponProps.Siege') },
       }
 
     Reflect.ownKeys(weaProps).forEach( prop => {
       globalThis.game.dnd5e.config.validProperties.weapon.add(prop);
-      globalThis.game.dnd5e.config.itemProperties[prop] = COMMON.translateObject(weaProps[prop]);
+      globalThis.game.dnd5e.config.itemProperties[prop] = weaProps[prop];
     });
 
     /* Extend armor properties */
     const armProps = {
-      con: { label: 'SYB5E.Item.ArmorProps.Concealable' },
-      cmb: { label: 'SYB5E.Item.ArmorProps.Cumbersome' },
-      noi: { label: 'SYB5E.Item.ArmorProps.Noisy' },
-      wei: { label: 'SYB5E.Item.ArmorProps.Weighty' },
+      con: { label: COMMON.localize('SYB5E.Item.ArmorProps.Concealable') },
+      cmb: { label: COMMON.localize('SYB5E.Item.ArmorProps.Cumbersome') },
+      noi: { label: COMMON.localize('SYB5E.Item.ArmorProps.Noisy') },
+      wei: { label: COMMON.localize('SYB5E.Item.ArmorProps.Weighty') },
     }
 
     Reflect.ownKeys(armProps).forEach( prop => {
       globalThis.game.dnd5e.config.validProperties.equipment.add(prop);
-      globalThis.game.dnd5e.config.itemProperties[prop] = COMMON.translateObject(armProps[prop]);
+      globalThis.game.dnd5e.config.itemProperties[prop] = armProps[prop];
     });
 
     /* extend dnd5e damage types
@@ -216,22 +219,28 @@ export class SYB5E {
      */
     foundry.utils.mergeObject(
       globalThis.game.dnd5e.config.damageTypes,
-      COMMON.translateObject({
-        permc: 'SYB5E.Corruption.PermDamage',
-        tempc: 'SYB5E.Corruption.TempDamage',
-      })
+      {
+        permc: {
+          label: COMMON.localize('SYB5E.Corruption.PermDamage'),
+          icon: '',
+        },
+        tempc: {
+          label: COMMON.localize('SYB5E.Corruption.TempDamage'),
+          icon: '',
+        },
+      }
     );
 
     /* add in "None" spell school (mainly for Troll Singer Songs) */
     foundry.utils.mergeObject(
       globalThis.game.dnd5e.config.spellSchools,
-      {  
+      {
         non: {
-          fullKey: "none",
+          fullKey: 'none',
           label: 'None',
           icon: '/icons/svg/cancel.svg',
         }
-      } 
+      }
     );
 
     /* Store new armor properties */
@@ -288,14 +297,14 @@ export class SYB5E {
     foundry.utils.mergeObject(
       globalThis.game.dnd5e.config.creatureTypes, {
         abomination: {
-          label: 'SYB5E.Creature.Abomination',
+          label: COMMON.localize('SYB5E.Creature.Abomination'),
+          plural: COMMON.localize('SYB5E.Creature.Abomination'),
           icon: '/icons/creatures/magical/spirit-undead-ghost-tan-teal.webp',
-          detectAlignment: true,
         },
         phenomenon: {
-          label: 'SYB5E.Creature.Phenomenon',
+          label: COMMON.localize('SYB5E.Creature.Phenomenon'),
+          plural: COMMON.localize('SYB5E.Creature.Phenomenon'),
           icon: '/icons/creatures/magical/spirit-undead-ghost-purple.webp',
-          detectAlignment: true,
         }
       }
     );

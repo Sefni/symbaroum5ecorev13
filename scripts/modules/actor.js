@@ -125,7 +125,7 @@ export class ActorSyb5e {
 
 	/* @override */
 	static async longRest(wrapped, { dialog = true, chat = true, newDay = true } = {}, ...args) {
-		const initHd = this.system.attributes.hd;
+		const initHd = this.system.attributes.hd.value;
 		const initHp = this.system.attributes.hp.value;
 		const initCorr = this.corruption.temp;
 
@@ -149,7 +149,7 @@ export class ActorSyb5e {
 			game.syb5e.CONFIG.REST_TYPES.long,
 			chat,
 			newDay,
-			this.system.attributes.hd - initHd,
+			this.system.attributes.hd.value - initHd,
 			this.system.attributes.hp.value - initHp,
 			this.corruption.temp - initCorr
 		);
@@ -158,7 +158,7 @@ export class ActorSyb5e {
 	/* -------------------------------------------- */
 
 	static async shortRest(wrapped, { dialog = true, chat = true, autoHD = false, autoHDThreshold = 3 } = {}, ...args) {
-		const initHd = this.system.attributes.hd;
+		const initHd = this.system.attributes.hd.value;
 		const initHp = this.system.attributes.hp.value;
 		const initCorr = this.corruption.temp;
 
@@ -182,7 +182,7 @@ export class ActorSyb5e {
 			game.syb5e.CONFIG.REST_TYPES.short,
 			chat,
 			false,
-			this.system.attributes.hd - initHd,
+			this.system.attributes.hd.value - initHd,
 			this.system.attributes.hp.value - initHp,
 			this.corruption.temp - initCorr
 		);
@@ -252,7 +252,7 @@ export class ActorSyb5e {
 			current[data.into] += denomUp;
 		}
 
-		return this.update({ 'data.currency': current });
+		return this.update({ 'system.currency': current });
 	}
 
 	/* -------------------------------------------- */
