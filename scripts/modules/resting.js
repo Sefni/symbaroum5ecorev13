@@ -86,7 +86,7 @@ export class Resting {
     const {hitPointUpdates, hpGain} = Resting._getRestHitPointUpdate(actor, type);
 
     /* get hit die recovery (full recovery ONLY on extended rest) */
-    const {updates: hitDiceUpdates, hitDiceRecovered} = type === restTypes.extended ? actor._getRestHitDiceRecovery({maxHitDice: actor.system.details.level}) : {updates: [], hitDiceRecovered: 0}
+    const {updates: hitDiceUpdates, hitDiceRecovered} = type === restTypes.extended ? actor._getRestHitDiceRecovery({maxHitDice: actor.system.attributes.hd.max}) : {updates: [], hitDiceRecovered: 0}
 
     /* get corruption recovery 1x, 2x, full (short, long, ext) */
     const recovery = Resting._getCorruptionRecovery(actor, type);
@@ -193,11 +193,13 @@ export class Resting {
 /* -------------------------------------------- */
 
   static getErItemUsesRecovery(items) {
-    /* collect any item with 'er' type recharge */
-    const type = 'er';
-
-    const erItems = items.filter( i => i.system.uses?.per === type );
-    const updates = erItems.map( item => { return { _id: item.id, 'system.uses.value': item.system.uses.max } } );
+    /* collect any item with 'er' type recharge (uses.recovery array contains {period: 'er'}) */
+    const erItems = items.filter( i => {
+      const recovery = i.system.uses?.recovery;
+      if (!recovery) return false;
+      return recovery.some(r => r.period === 'er');
+    });
+    const updates = erItems.map( item => { return { _id: item.id, 'system.uses.spent': 0 } } );
 
     return updates;
   }
@@ -274,12 +276,10 @@ export class Resting {
 
   static async expendHitDie(actor, denomination) {
 
-    //FROM DND5E/entity.js#rollHitDie
-
     // If no denomination was provided, choose the first available
     let cls = null;
     if (!denomination) {
-      cls = actor.itemTypes.class.find(c => c.system.hitDiceUsed < c.system.levels);
+      cls = actor.itemTypes.class.find(c => (c.system.hitDiceUsed ?? 0) < c.system.levels);
       if (!cls) return null;
       denomination = cls.system.hitDice;
     }
@@ -287,8 +287,9 @@ export class Resting {
     // Otherwise locate a class (if any) which has an available hit die of the requested denomination
     else {
       cls = actor.items.find(i => {
-        const d = i.system
-        return (d.hitDice === denomination) && ((d.hitDiceUsed || 0) < (d.levels || 1));
+        if (i.type !== 'class') return false;
+        const d = i.system;
+        return (d.hitDice === denomination) && ((d.hitDiceUsed ?? 0) < (d.levels || 1));
       });
     }
 
@@ -301,9 +302,9 @@ export class Resting {
       return null;
     }
 
-    // Adjust actor data
+    // Adjust actor data — in dnd5e 5.x, HD tracking uses spent count
     await cls.update({
-      "system.hitDiceUsed": cls.system.hitDiceUsed + 1
+      "system.hitDiceUsed": (cls.system.hitDiceUsed ?? 0) + 1
     });
   }
 }
