@@ -1,5 +1,5 @@
-/* Foundry v13: JournalSheet → JournalEntrySheet (AppV2) */
-export class SymbaroumJournalSheet extends JournalEntrySheet {
+/* Foundry v13: JournalSheet → foundry.applications.sheets.journal.JournalEntrySheet (AppV2) */
+export class SymbaroumJournalSheet extends foundry.applications.sheets.journal.JournalEntrySheet {
     get journal() {
         return this.document;
     }
