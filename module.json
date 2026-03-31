@@ -2,8 +2,8 @@
 	"title": "Ruins of Symbaroum 5E - Core",
 	"description": "Implements the core rules mechanics of the Ruins of Symbaroum conversion for 5th Edition.",
 	"version": "4.1.0",
-	"styles": ["/css/symbaroum-dnd5e-mod.css"],
-	"esmodules": ["/scripts/core.js"],
+	"styles": ["css/symbaroum-dnd5e-mod.css"],
+	"esmodules": ["scripts/core.js"],
 	"languages": [
 		{
 			"lang": "en",
@@ -23,8 +23,8 @@
 		}
 	],
 	"url": "https://frialigan.se/",
-	"manifest": "https://github.com/FLPub/symbaroum5ecore/releases/latest/download/module.json",
-	"download": "https://github.com/FLPub/symbaroum5ecore/releases/latest/download/module.zip",
+	"manifest": "https://raw.githubusercontent.com/Sefni/symbaroum5ecorev13/master/module.json",
+	"download": "https://github.com/Sefni/symbaroum5ecorev13/archive/refs/heads/master.zip",
 	"authors": [
 		{
 			"name": "Matthew Haentschke, Paul Watson",
