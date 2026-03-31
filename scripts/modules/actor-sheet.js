@@ -98,50 +98,111 @@ export class SheetCommon {
 	}
 
 	/**
+	 * Build compact corruption bar HTML.
+	 */
+	static _buildCorruptionHtml(actor) {
+		const c = actor.corruption;
+		const paths = game.syb5e.CONFIG.PATHS;
+		const abilityData = SheetCommon._getCorruptionAbilityData(actor, actor.system.abilities);
+
+		const abilityOptions = abilityData.abilities
+			.map((a) => `<option value="${a.ability}" ${a.ability === abilityData.current ? 'selected' : ''}>${a.label}</option>`)
+			.join('');
+
+		if (abilityData.thorough) {
+			return `<div class="syb5e-corruption-bar">
+				<span class="syb5e-corruption-label">${COMMON.localize('SYB5E.Corruption.Label')}</span>
+				<select name="${paths.corruption.ability}" class="syb5e-corruption-select">${abilityOptions}</select>
+				<span class="syb5e-corruption-note">${COMMON.localize('SYB5E.Corruption.ThoroughShort')}</span>
+			</div>`;
+		}
+
+		return `<div class="syb5e-corruption-bar">
+			<span class="syb5e-corruption-label">${COMMON.localize('SYB5E.Corruption.Label')}</span>
+			<select name="${paths.corruption.ability}" class="syb5e-corruption-select">${abilityOptions}</select>
+			<div class="syb5e-corruption-fields">
+				<label class="syb5e-corruption-field">
+					<input type="text" name="${paths.corruption.temp}" value="${c.temp}" data-dtype="Number" placeholder="0">
+					<span>${COMMON.localize('SYB5E.Corruption.Temporary')}</span>
+				</label>
+				<span class="syb5e-corruption-op">+</span>
+				<label class="syb5e-corruption-field">
+					<input type="text" name="${paths.corruption.permanent}" value="${c.permanent}" data-dtype="Number" placeholder="0">
+					<span>${COMMON.localize('SYB5E.Corruption.Permanent')}</span>
+				</label>
+				<span class="syb5e-corruption-op">=</span>
+				<label class="syb5e-corruption-field">
+					<span class="syb5e-corruption-value">${c.value}</span>
+					<span>${COMMON.localize('SYB5E.Corruption.Current')}</span>
+				</label>
+				<span class="syb5e-corruption-op">/</span>
+				<label class="syb5e-corruption-field">
+					<input type="text" name="${paths.corruption.max}" value="${c.max}" data-dtype="Number" ${abilityData.disabled} placeholder="0">
+					<span>${COMMON.localize('SYB5E.Corruption.Threshold')}</span>
+				</label>
+			</div>
+		</div>`;
+	}
+
+	/**
+	 * Build shadow/manner HTML.
+	 */
+	static _buildShadowHtml(actor) {
+		const paths = game.syb5e.CONFIG.PATHS;
+		const shadow = actor.shadow ?? '';
+		const manner = actor.manner ?? '';
+		const isNPC = actor.type === 'npc';
+
+		let html = `<div class="syb5e-shadow-section">`;
+		if (isNPC) {
+			html += `<label class="syb5e-shadow-field">
+				<span>${COMMON.localize('SYB5E.Manner.Label')}</span>
+				<textarea name="${paths.manner}">${manner}</textarea>
+			</label>`;
+		}
+		html += `<label class="syb5e-shadow-field">
+			<span>${COMMON.localize('SYB5E.Shadow.Label')}</span>
+			<textarea name="${paths.shadow}">${shadow}</textarea>
+		</label>`;
+		html += `</div>`;
+		return html;
+	}
+
+	/**
 	 * Common _onRender: inject Symbaroum elements into the parent dnd5e sheet.
 	 * Called with sheet as `this`.
 	 */
 	static _onRender(context) {
-		/* Inject corruption section */
-		if (context._sybCorruptionHtml) {
-			/* Try to inject after the header or in the sidebar */
-			const target =
-				this.element.querySelector('.sheet-header') ??
-				this.element.querySelector('.header') ??
-				this.element.querySelector('[data-application-part="header"]');
-			if (target) {
-				target.insertAdjacentHTML('afterend', context._sybCorruptionHtml);
-			}
+		/* Remove any previously injected elements (re-render safe) */
+		this.element.querySelectorAll('.syb5e-corruption-bar, .syb5e-shadow-section').forEach((el) => el.remove());
+
+		/* Inject corruption bar after header */
+		const corruptionHtml = SheetCommon._buildCorruptionHtml(this.actor);
+		const header =
+			this.element.querySelector('[data-application-part="header"]') ??
+			this.element.querySelector('.sheet-header') ??
+			this.element.querySelector('header');
+		if (header) {
+			header.insertAdjacentHTML('afterend', corruptionHtml);
 		}
 
 		/* Inject shadow/manner in biography area */
-		if (context._sybShadowHtml) {
-			const bioTab =
-				this.element.querySelector('[data-tab="biography"] .characteristics') ??
-				this.element.querySelector('[data-tab="biography"]') ??
-				this.element.querySelector('[data-application-part="biography"]');
-			if (bioTab) {
-				bioTab.insertAdjacentHTML('afterbegin', context._sybShadowHtml);
-			}
+		const shadowHtml = SheetCommon._buildShadowHtml(this.actor);
+		const bioTab =
+			this.element.querySelector('[data-application-part="biography"]') ??
+			this.element.querySelector('[data-tab="biography"]');
+		if (bioTab) {
+			bioTab.insertAdjacentHTML('afterbegin', shadowHtml);
 		}
 
 		/* Suppress spell slot display */
 		this.element.querySelectorAll('.spell-slots').forEach((el) => (el.style.display = 'none'));
-
-		/* Replace currency row */
-		if (context._sybCurrencyRow) {
-			const currencyEl = this.element.querySelector('.currency');
-			if (currencyEl) currencyEl.outerHTML = context._sybCurrencyRow;
-		}
 
 		/* Replace 'Prepared' with 'Favored' */
 		const preparedCounter = this.element.querySelector('[data-filter="prepared"]');
 		if (preparedCounter) {
 			preparedCounter.textContent = `${COMMON.localize('SYB5E.Spell.Favored')} (${this._numFavored ?? 0})`;
 		}
-
-		/* Currency conversion listener */
-		this.element.querySelector('.currency-convert')?.addEventListener('click', SheetCommon._onSybCurrencyConvert.bind(this));
 	}
 
 	static _prepareItems(context) {
@@ -217,44 +278,30 @@ export class SheetCommon {
 
 			async _prepareContext(options) {
 				const context = await super._prepareContext(options);
-
 				await SheetCommon._getCommonData(this.actor, context);
-
-				/* Pre-render Symbaroum templates for injection in _onRender */
-				context._sybCorruptionHtml = await foundry.applications.handlebars.renderTemplate(
-					`${COMMON.DATA.path}/templates/actors/parts/actor-corruption.html`,
-					context
-				);
-				context._sybShadowHtml = await foundry.applications.handlebars.renderTemplate(
-					`${COMMON.DATA.path}/templates/actors/parts/actor-shadow.html`,
-					context
-				);
-				context._sybCurrencyRow = await SheetCommon.renderCurrencyRow(this.actor);
-
 				logger.debug('_prepareContext#context:', context);
 				return context;
 			}
 
 			_onRender(context, options) {
 				super._onRender(context, options);
-
-				/* Inject Symbaroum elements into the parent dnd5e sheet */
 				SheetCommon._onRender.call(this, context);
 
-				/* Inject the extended rest button near HD/rest area */
-				const restBtns = this.element.querySelector('.rest') ?? this.element.querySelector('[data-action="rest"]');
-				if (restBtns) {
-					const container = restBtns.closest('.attribute-footer') ?? restBtns.parentElement;
-					if (container) {
-						container.insertAdjacentHTML(
-							'beforeend',
-							`<a class="rest extended-rest" title="${COMMON.localize('SYB5E.Rest.Extended')}">${COMMON.localize('SYB5E.Rest.ExtendedAbbr')}</a>`
-						);
-					}
+				/* Remove previous extended rest button */
+				this.element.querySelector('.syb5e-extended-rest')?.remove();
+
+				/* Inject extended rest button near rest buttons */
+				const restBtn = this.element.querySelector('[data-type="long"]') ?? this.element.querySelector('[data-action="rest"]');
+				if (restBtn) {
+					restBtn.insertAdjacentHTML(
+						'afterend',
+						`<button type="button" class="syb5e-extended-rest" data-type="extended" title="${COMMON.localize('SYB5E.Rest.Extended')}">
+							<i class="fa-solid fa-campground"></i> ${COMMON.localize('SYB5E.Rest.ExtendedAbbr')}
+						</button>`
+					);
 				}
 
-				/* Activate listener for Extended Rest Button */
-				this.element.querySelector('.extended-rest')?.addEventListener('click', this._onExtendedRest.bind(this));
+				this.element.querySelector('.syb5e-extended-rest')?.addEventListener('click', this._onExtendedRest.bind(this));
 			}
 
 			async _onExtendedRest(event) {
@@ -298,23 +345,8 @@ export class SheetCommon {
 
 			async _prepareContext(options) {
 				const context = await super._prepareContext(options);
-
 				await SheetCommon._getCommonData(this.actor, context);
-
-				/* NPCs also have 'manner' */
 				foundry.utils.setProperty(context.system.details, 'manner', this.actor.manner);
-
-				/* Pre-render Symbaroum templates for injection in _onRender */
-				context._sybCorruptionHtml = await foundry.applications.handlebars.renderTemplate(
-					`${COMMON.DATA.path}/templates/actors/parts/actor-corruption.html`,
-					context
-				);
-				context._sybShadowHtml = await foundry.applications.handlebars.renderTemplate(
-					`${COMMON.DATA.path}/templates/actors/parts/actor-shadow.html`,
-					context
-				);
-				context._sybCurrencyRow = await SheetCommon.renderCurrencyRow(this.actor);
-
 				logger.debug('_prepareContext#context:', context);
 				return context;
 			}
