@@ -19,7 +19,24 @@ export class SYB5E {
   }
 
   static templates() {
-    return loadTemplates([
+    /* Register stub partials for dnd5e V1 partials that no longer exist in dnd5e 5.x.
+     * These allow the module's templates to render without crashing.
+     * TODO Phase 10: Replace module templates with AppV2-native versions. */
+    const missingPartials = [
+      'dnd5e.actor-warnings',
+      'dnd5e.actor-traits',
+      'dnd5e.inventory',
+      'dnd5e.actor-features',
+      'dnd5e.actor-spellbook',
+      'dnd5e.active-effects',
+    ];
+    for (const name of missingPartials) {
+      if (!Handlebars.partials[name]) {
+        Handlebars.registerPartial(name, `<div class="syb5e-stub" data-stub="${name}"></div>`);
+      }
+    }
+
+    return foundry.applications.handlebars.loadTemplates([
       /* Actor partials */
       `${COMMON.DATA.path}/templates/actors/parts/actor-corruption.html`,
       `${COMMON.DATA.path}/templates/actors/parts/actor-shadow.html`,

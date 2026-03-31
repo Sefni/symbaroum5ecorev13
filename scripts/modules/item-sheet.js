@@ -47,8 +47,8 @@ export class Syb5eItemSheet {
 				},
 			};
 
-			const favoredSelect = await renderTemplate(`${COMMON.DATA.path}/templates/items/parts/spell-favored.html`, data);
-			const favoredBadge = await renderTemplate(`${COMMON.DATA.path}/templates/items/parts/spell-favored-badge.html`, data);
+			const favoredSelect = await foundry.applications.handlebars.renderTemplate(`${COMMON.DATA.path}/templates/items/parts/spell-favored.html`, data);
+			const favoredBadge = await foundry.applications.handlebars.renderTemplate(`${COMMON.DATA.path}/templates/items/parts/spell-favored-badge.html`, data);
 
 			/* adjust spell prep div style — vanilla DOM */
 			const preparedCheckbox = html.querySelector('label.checkbox.prepared');
@@ -121,7 +121,7 @@ export class Syb5eItemSheet {
 				delete data.corruptionModes.MULTIPLY;
 			}
 
-			const corruptionGroup = await renderTemplate(`${COMMON.DATA.path}/templates/items/parts/item-corruption.html`, data);
+			const corruptionGroup = await foundry.applications.handlebars.renderTemplate(`${COMMON.DATA.path}/templates/items/parts/item-corruption.html`, data);
 			consumeGroup.insertAdjacentHTML('afterend', corruptionGroup);
 		}
 	}

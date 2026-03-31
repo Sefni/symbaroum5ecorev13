@@ -120,7 +120,7 @@ export class SheetCommon {
 
 		COMMON.translateObject(data.labels);
 
-		const rendered = await renderTemplate(`${COMMON.DATA.path}/templates/actors/parts/actor-currency.html`, data);
+		const rendered = await foundry.applications.handlebars.renderTemplate(`${COMMON.DATA.path}/templates/actors/parts/actor-currency.html`, data);
 
 		return rendered;
 	}
@@ -340,7 +340,7 @@ export class SheetCommon {
 				/* Pre-render currency row for injection in _onRender */
 				context._sybCurrencyRow = await SheetCommon.renderCurrencyRow(this.actor);
 
-				context.enrichedBio = await TextEditor.enrichHTML(context.system.details.biography.value, { async: true, rollData: context.rollData });
+				context.enrichedBio = await foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.details.biography.value, { async: true, rollData: context.rollData });
 				logger.debug('_prepareContext#context:', context);
 				return context;
 			}
@@ -460,7 +460,7 @@ export class SheetCommon {
 				/* Pre-render currency row for injection in _onRender */
 				context._sybCurrencyRow = await SheetCommon.renderCurrencyRow(this.actor);
 
-				context.enrichedBio = await TextEditor.enrichHTML(context.system.details.biography.value, { async: true, rollData: context.rollData });
+				context.enrichedBio = await foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.details.biography.value, { async: true, rollData: context.rollData });
 				logger.debug('_prepareContext#context:', context);
 				return context;
 			}
