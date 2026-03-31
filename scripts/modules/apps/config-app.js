@@ -74,45 +74,47 @@ export class SybConfigApp extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
-    html.find('#charBGImage').change((ev) => this._showColOption(ev, '#pcColPanel', charBGImage.value));
-    html.find('#npcBGImage').change((ev) => this._showColOption(ev, '#npcColPanel', npcBGImage.value));
 
-    html.find('button[name="resetPC"]').click(this.onResetPC.bind(this));
-    html.find('button[name="resetNPC"]').click(this.onResetNPC.bind(this));
-    html.find('button[name="resetAll"]').click(this.onResetAll.bind(this));
+    /* Get root element — handle both jQuery and HTMLElement */
+    const root = html instanceof HTMLElement ? html : html[0];
 
-    html.find('button[name="dnd5eSettings"]').click(this.dnd5eSettings.bind(this));
+    root.querySelector('#charBGImage')?.addEventListener('change', (ev) => {
+      this._showColOption(ev, '#pcColPanel', root.querySelector('#charBGImage').value);
+    });
+    root.querySelector('#npcBGImage')?.addEventListener('change', (ev) => {
+      this._showColOption(ev, '#npcColPanel', root.querySelector('#npcBGImage').value);
+    });
 
-    document.getElementById('charBGImage').value = COMMON.setting('charBGChoice');
-    document.getElementById('charTextColour').value = COMMON.setting('charTextColour');
-    document.getElementById('npcBGImage').value = COMMON.setting('npcBGChoice');
-    document.getElementById('npcTextColour').value = COMMON.setting('npcTextColour');
+    root.querySelector('button[name="resetPC"]')?.addEventListener('click', this.onResetPC.bind(this));
+    root.querySelector('button[name="resetNPC"]')?.addEventListener('click', this.onResetNPC.bind(this));
+    root.querySelector('button[name="resetAll"]')?.addEventListener('click', this.onResetAll.bind(this));
+    root.querySelector('button[name="dnd5eSettings"]')?.addEventListener('click', this.dnd5eSettings.bind(this));
 
-    document.addEventListener(
-      'input',
-      function (event) {
-        // Only run on our select menu
-        if (event.target.id !== 'charBGImage') return;
-        COMMON.setting('charChanged', event.target.options[event.target.selectedIndex].label);
-      },
-      false
-    );
-    document.addEventListener(
-      'input',
-      function (event) {
-        // Only run on our select menu
-        if (event.target.id !== 'npcBGImage') return;
-        COMMON.setting('npcChanged', event.target.options[event.target.selectedIndex].label);
-      },
-      false
-    );
+    const charBGImageEl = root.querySelector('#charBGImage');
+    const npcBGImageEl = root.querySelector('#npcBGImage');
+    const charTextColourEl = root.querySelector('#charTextColour');
+    const npcTextColourEl = root.querySelector('#npcTextColour');
+
+    if (charBGImageEl) charBGImageEl.value = COMMON.setting('charBGChoice');
+    if (charTextColourEl) charTextColourEl.value = COMMON.setting('charTextColour');
+    if (npcBGImageEl) npcBGImageEl.value = COMMON.setting('npcBGChoice');
+    if (npcTextColourEl) npcTextColourEl.value = COMMON.setting('npcTextColour');
+
+    charBGImageEl?.addEventListener('input', function (event) {
+      COMMON.setting('charChanged', event.target.options[event.target.selectedIndex].label);
+    });
+    npcBGImageEl?.addEventListener('input', function (event) {
+      COMMON.setting('npcChanged', event.target.options[event.target.selectedIndex].label);
+    });
 
     if (COMMON.setting('charBGChoice') === 'none') {
-      document.getElementById('pcColPanel').style.display = 'block';
+      const pcPanel = root.querySelector('#pcColPanel');
+      if (pcPanel) pcPanel.style.display = 'block';
     }
 
     if (COMMON.setting('npcBGChoice') === 'none') {
-      document.getElementById('npcColPanel').style.display = 'block';
+      const npcPanel = root.querySelector('#npcColPanel');
+      if (npcPanel) npcPanel.style.display = 'block';
     }
   }
 
@@ -234,8 +236,8 @@ export class SybConfigApp extends FormApplication {
       }
     }
 
-    if (charBGImage.value === 'none') {
-      if (formData.charBGColour.length > 0 && formData.charBGColour[0] != '#') {
+    if (formData.charBGImage === 'none') {
+      if (formData.charBGColour?.length > 0 && formData.charBGColour[0] != '#') {
         formData.charBGColour = '#000000';
       }
       await COMMON.setting('switchCharBGColour', formData.charBGColour);
@@ -243,8 +245,8 @@ export class SybConfigApp extends FormApplication {
       await COMMON.setting('switchCharBGColour', formData.charBGImage);
     }
 
-    if (npcBGImage.value === 'none') {
-      if (formData.npcBGColour.length > 0 && formData.npcBGColour[0] != '#') {
+    if (formData.npcBGImage === 'none') {
+      if (formData.npcBGColour?.length > 0 && formData.npcBGColour[0] != '#') {
         formData.npcBGColour = '#000000';
       }
       await COMMON.setting('switchNpcBGColour', formData.npcBGColour);
@@ -260,17 +262,19 @@ export class SybConfigApp extends FormApplication {
 
   async _showColOption(event, mChild, iValue) {
     event.preventDefault();
-    let li = $(event.currentTarget).parents('.tab-active');
-    let li2 = li.children(mChild);
-    let tHeight = parseInt(li[0].offsetParent.style.height.replace(/[^0-9]/g, ''));
-    if (li2[0].style.display === 'none' && iValue === 'none') {
+    const li = event.currentTarget.closest('.tab-active');
+    if (!li) return;
+    const li2 = li.querySelector(mChild);
+    if (!li2) return;
+    let tHeight = parseInt(li.offsetParent?.style.height?.replace(/[^0-9]/g, '') ?? '0');
+    if (li2.style.display === 'none' && iValue === 'none') {
       tHeight = tHeight + 30;
-      li[0].offsetParent.style.height = tHeight.toString() + 'px';
-      li2[0].style.display = 'block';
-    } else if (li2[0].style.display != 'none') {
+      if (li.offsetParent) li.offsetParent.style.height = tHeight.toString() + 'px';
+      li2.style.display = 'block';
+    } else if (li2.style.display !== 'none') {
       tHeight = tHeight - 30;
-      li[0].offsetParent.style.height = tHeight.toString() + 'px';
-      li2[0].style.display = 'none';
+      if (li.offsetParent) li.offsetParent.style.height = tHeight.toString() + 'px';
+      li2.style.display = 'none';
     }
   }
 }
