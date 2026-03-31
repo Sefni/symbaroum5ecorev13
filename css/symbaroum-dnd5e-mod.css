@@ -22,526 +22,151 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Global Variables */
-:root {
-  --syb5e-pc-color: #ffffff;
-  --syb5e-pc-background: none;
-  --syb5e-pc-background-image: url(../images/background/bg-green.webp) repeat;
-  --syb5e-pc-sheet-border: 8px solid transparent;
-  --syb5e-pc-font: 'Fondamento';
-  --syb5e-pc-border-image: url(../images/journal/sym-journal-border.webp);
-  --syb5e-pc-item-link: #ffffff;
-  --syb5e-pc-tag: #ffffff;
-  --syb5e-npc-color: #ffffff;
-  --syb5e-npc-background: none;
-  --syb5e-npc-background-image: url(../images/background/bg-red.webp) repeat;
-  --syb5e-npc-font: 'Fondamento';
-  --syb5e-npc-border-image: url(../images/journal/sym-journal-header.webp);
-  --syb5e-npc-sheet-border: 8px solid transparent;
-  --syb5e-npc-item-link: #ffffff;
-  --syb5e-npc-tag: #ffffff;
+/* ======================== */
+/* Symbaroum Corruption Bar */
+/* ======================== */
+.syb5e-corruption-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  font-size: var(--font-size-12);
 }
 
-/* End of Global Variables */
-/* ************************ */
+.syb5e-corruption-label {
+  font-weight: bold;
+  white-space: nowrap;
+  font-size: var(--font-size-13);
+}
 
-/* Character/NPC Sheet Styling  */
-/* ************************ */
-.syb5e.sheet {
-  & .window-header {
-    background-color: black;
+.syb5e-corruption-select {
+  max-width: 120px;
+  font-size: var(--font-size-11);
+  padding: 1px 4px;
+  height: auto;
+}
+
+.syb5e-corruption-note {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.syb5e-corruption-fields {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.syb5e-corruption-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.syb5e-corruption-field input {
+  width: 40px;
+  text-align: center;
+  font-size: var(--font-size-14);
+  padding: 2px;
+  height: auto;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.syb5e-corruption-field > span {
+  font-size: var(--font-size-10);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.syb5e-corruption-value {
+  display: inline-block;
+  width: 40px;
+  text-align: center;
+  font-size: var(--font-size-14) !important;
+  font-weight: bold;
+  opacity: 1 !important;
+}
+
+.syb5e-corruption-op {
+  font-size: var(--font-size-14);
+  opacity: 0.6;
+}
+
+/* ======================== */
+/* Symbaroum Shadow Section */
+/* ======================== */
+.syb5e-shadow-section {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  margin-bottom: 6px;
+}
+
+.syb5e-shadow-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.syb5e-shadow-field > span {
+  font-weight: bold;
+  font-size: var(--font-size-12);
+  margin-bottom: 2px;
+}
+
+.syb5e-shadow-field textarea {
+  min-height: 40px;
+  font-size: var(--font-size-12);
+  resize: vertical;
+}
+
+/* ======================== */
+/* Extended Rest Button     */
+/* ======================== */
+.syb5e-extended-rest {
+  font-size: var(--font-size-11);
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+/* ======================== */
+/* Chat feedback            */
+/* ======================== */
+.symbaroum-dnd5e-mod.chat {
+  background-image: url(../images/journal/foreground.jpg);
+  border-radius: 6px;
+  border: 1px solid var(--dnd5e-color-gold, #c9a34e);
+  margin: 0.375rem 0;
+
+  & p {
+    margin: 0.375rem;
   }
 
-  & .sheet-navigation {
-    font-size: var(--font-size-18);
+  & h3 {
+    text-align: center;
   }
 
-  &.npc .sheet-body .skills-list {
-    flex-basis:190px;
+  & .roll-output {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  & .roll-result {
+    font-weight: bolder;
   }
 }
 
-/* dnd5e 5.x AppV2: fix text visibility on dark panels */
-.syb5e .card .card-header,
-.syb5e .card .card-header h4,
-.syb5e .pills-group .pill,
-.syb5e .sidebar .name,
-.syb5e [data-application-part="sidebar"] label,
-.syb5e [data-application-part="sidebar"] span,
-.syb5e [data-application-part="sidebar"] .meter-label {
-  color: var(--dnd5e-color-light-1, #ebe5d8);
-}
-
-/* Ensure skill names, saving throws, proficiency text are visible */
-.syb5e .skills .skill .label,
-.syb5e .saves .save .label,
-.syb5e .skills .skill,
-.syb5e .saves .save {
-  color: var(--dnd5e-color-light-1, #ebe5d8);
-}
-
-.syb5e.sheet.actor .editor .tox-toolbar-overlord,
-.syb5e.sheet.actor .editor .tox-toolbar__primary {
-  background-color: #fff;
-  border-bottom: solid 1px black;
-}
-
-.syb5e.sheet.actor .tox.tox-tinymce .tox-edit-area__iframe {
-  background-color: #fff;
-}
-
-.syb5e.sheet.actor .dnd5e-border {
-  border: 2px groove #eeede0;
-  border-radius: 4px;
-}
-
-.syb5e.sheet.actor .sheet-header .attributes .health input,
-.syb5e.sheet.actor .sheet-header .attributes .health span:not(.sep) {
-  font-size:smaller;
-  min-width:4ch;
-}
-
-/* End Character/NPC Sheet Styling  */
-/* ************************ */
-
-/* Character Sheet Styling  */
-/* ************************ */
-
-.app.window-app.syb5e.actor.character.sheet {
-  /* background: chartreuse; */
-  border: var(--syb5e-pc-sheet-border);
-  border-image: var(--syb5e-pc-border-image);
-  border-image-slice: 50%;
-  border-image-width: 100%;
-  min-width: 764px;
-}
-.syb5e.sheet.actor.character .window-content {
-  /* background: chartreuse; */
-  background: var(--syb5e-pc-background-image);
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-.syb5e.sheet.actor.character .sheet-navigation {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character input[type='text'],
-.syb5e.sheet.actor.character input[type='number'],
-.syb5e.sheet.actor.character select {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character input[type='text']:hover,
-.syb5e.sheet.actor.character input[type='number']:hover,
-.syb5e.sheet.actor.character input[type='checkbox']:hover,
-.syb5e.sheet.actor.character input[type='text']:focus,
-.syb5e.sheet.actor.character input[type='number']:focus,
-.syb5e.sheet.actor.character input[type='checkbox']:focus {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character input[type='text'],
-.syb5e.sheet.actor.character .sheet input[type='number'] {
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .sheet-header .summary li {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character input[type='text'],
-.syb5e.sheet.actor.character input[type='number'] {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .sheet-header h1.charname input {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .sheet-header .charlevel {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .sheet-header .attributes .attribute .attribute-value {
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .ability-scores .ability .ability-modifiers span.ability-mod {
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .sheet-header .experience span.max {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-.syb5e.sheet.actor.character .form-group label {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .sheet-header .summary input,
-.syb5e.sheet.actor.character .sheet.actor .sheet-header .summary span {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-  font-size: small;
-}
-
-.syb5e.sheet.actor.character .ability-scores .ability input.ability-score {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .ability-scores .ability .ability-modifiers span.ability-save {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character ul.attributes li.attribute .attribute-value.multiple input {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character h4.box-title {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-  font-size: small;
-}
-
-.syb5e.sheet.actor.character ::placeholder {
-  /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: var(--syb5e-pc-color);
-  opacity: 0.75; /*Firefox */
-}
-
-.syb5e.sheet.actor.character ::-ms-input-placeholder {
-  /* Microsoft Edge */
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character span.sep {
-  color: var(--syb5e-pc-color);
-  font-size: medium;
-}
-
-.syb5e.sheet.actor.character .inventory-filters .currency h3 {
-  border-bottom: none;
-}
-
-.syb5e.sheet.actor.character .inventory-filters .currency label {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character ul.attributes li.attribute .attribute-footer {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-}
-
-.syb5e.sheet.actor.character .counters .counter h4 {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .traits i.fas {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .proficient .proficiency-toggle {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .resource .attribute-value label.recharge {
-  color: var(--syb5e-pc-color);
-}
-.syb5e.sheet.actor.character select {
-  color: black;
-  background-color: #b5b3a4;
-}
-
-.syb5e.sheet.actor.character .items-list .items-header h3 {
-  color: var(--syb5e-pc-color);
-  font-family: var(--syb5e-pc-font);
-  border-bottom: 0;
-}
-
-.syb5e.sheet.actor.character .items-list {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .items-list .item-name h3,
-.syb5e.sheet.actor.character .items-list .item-name h4 {
-  color: var(--syb5e-pc-color);
-}
-.syb5e.sheet.actor.character .inventory .item-controls .item-toggle.active,
-.syb5e.sheet.actor.character .spellbook .item-controls .item-toggle.active {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .inventory-list .item-summary {
-  color: var(--syb5e-pc-color);
-}
-.syb5e.sheet.actor.character .spell-school,
-.syb5e.sheet.actor.character .spell-action,
-.syb5e.sheet.actor.character .spell-target {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .spell-slots,
-.syb5e.sheet.actor.character .spell-comps {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character .spell-component.C,
-.syb5e.sheet.actor.character .spell-component.R {
-  color: var(--syb5e-pc-color);
-}
-
-.syb5e.sheet.actor.character a.entity-link,
-a.content-link,
-a.inline-roll {
-  color: var(--syb5e-pc-item-link);
-}
-
-.syb5e.sheet.actor.character .tag {
-  color: var(--syb5e-pc-tag);
-}
-
-.syb5e.sheet.actor.character textarea {
-  color: var(--syb5e-npc-color);
-}
-
-/* End of Character Sheet Styling  */
-/* ************************ */
-
-/* NPC Sheet Styling  */
-/* ************************ */
-.app.window-app.syb5e.actor.npc.sheet {
-  /* background: chartreuse; */
-  border: var(--syb5e-npc-sheet-border);
-  border-image: var(--syb5e-npc-border-image);
-  border-image-slice: 50%;
-  border-image-width: 100%;
-  min-width: 625px;
-}
-
-.syb5e.sheet.actor.npc .window-content {
-  background: var(--syb5e-npc-background-image);
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-.syb5e.sheet.actor.npc .sheet-navigation {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc input[type='text'],
-.syb5e.sheet.actor.npc input[type='number'],
-.syb5e.sheet.actor.npc select {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc input[type='text']:hover,
-.syb5e.sheet.actor.npc input[type='number']:hover,
-.syb5e.sheet.actor.npc input[type='checkbox']:hover,
-.syb5e.sheet.actor.npc input[type='text']:focus,
-.syb5e.sheet.actor.npc input[type='number']:focus,
-.syb5e.sheet.actor.npc input[type='checkbox']:focus {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc input[type='text'],
-.syb5e.sheet.actor.npc .sheet input[type='number'] {
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .sheet-header .summary li {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .header-exp .cr {
-  font-family: var(--syb5e-npc-font);
-  font-size: var(--font-size-16);
-}
-
-.syb5e.sheet.actor.npc input[type='text'],
-.syb5e.sheet.actor.npc input[type='number'] {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .sheet-header h1.charname input {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-  font-size: 36px;
-}
-
-.syb5e.sheet.actor.npc .sheet-header .charlevel {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .sheet-header .experience span.max {
-  color: var(--syb5e-npc-color);
-}
-.syb5e.sheet.actor.npc .form-group label {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .sheet-header .summary input,
-.syb5e.sheet.actor.npc .sheet.actor .sheet-header .summary span {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-  font-size: small;
-}
-
-.syb5e.sheet.actor.npc .ability-scores .ability input.ability-score {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc ul.attributes li.attribute .attribute-value.multiple input {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .sheet-header .attributes .attribute .attribute-value {
-  font-family: var(--syb5e-npc-font);
-}
-.syb5e.sheet.actor.npc .ability-scores .ability .ability-modifiers span.ability-mod {
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .ability-scores .ability .ability-modifiers span.ability-save {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc h4.box-title {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-  font-size: small;
-}
-
-.syb5e.sheet.actor.npc ::placeholder {
-  /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: var(--syb5e-npc-color);
-  opacity: 0.75; /*Firefox */
-}
-
-.syb5e.sheet.actor.npc ::-ms-input-placeholder {
-  /* Microsoft Edge */
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc span.sep {
-  color: var(--syb5e-npc-color);
-  font-size: medium;
-}
-
-.syb5e.sheet.actor.npc .inventory-filters .currency h3 {
-  border-bottom: none;
-}
-
-.syb5e.sheet.actor.npc .inventory-filters .currency label {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc ul.attributes li.attribute .attribute-footer {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .counters .counter h4 {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .traits i.fas {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .proficient .proficiency-toggle {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc select {
-  color: black;
-  background-color: #b5b3a4;
-}
-
-.syb5e.sheet.actor.npc .items-list .items-header h3 {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-  border-bottom: none;
-}
-
-.syb5e.sheet.actor.npc .items-list {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .items-list .item-name h3,
-.syb5e.sheet.actor.npc .items-list .item-name h4 {
-  color: var(--syb5e-npc-color);
-}
-.syb5e.sheet.actor.npc .inventory .item-controls .item-toggle.active,
-.syb5e.sheet.actor.npc .spellbook .item-controls .item-toggle.active {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .inventory-list .item-summary {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .spell-school,
-.syb5e.sheet.actor.npc .spell-action,
-.syb5e.sheet.actor.npc .spell-target {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .spell-slots,
-.syb5e.sheet.actor.npc .spell-comps {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .spell-component.C,
-.syb5e.sheet.actor.npc .spell-component.R {
-  color: var(--syb5e-npc-color);
-}
-
-.syb5e.sheet.actor.npc .header-exp .experience,
-.syb5e.sheet.actor.np .header-exp .proficiency {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-}
-
-.syb5e.sheet.actor.npc .header-exp .proficiency {
-  color: var(--syb5e-npc-color);
-  font-family: var(--syb5e-npc-font);
-  width: max-content;
-}
-
-.syb5e.sheet.actor.npc a.entity-link,
-a.content-link,
-a.inline-roll {
-  color: var(--syb5e-npc-item-link);
-}
-
-.syb5e.sheet.actor.npc .tag {
-  color: var(--syb5e-npc-tag);
-}
-
-.syb5e.sheet.actor.npc textarea {
-  color: var(--syb5e-npc-color);
-}
-/* End of NPC Sheet Styling  */
-/* ************************ */
-
+/* ======================== */
+/* Journal Sheet Styling    */
+/* ======================== */
 .symbaroum-dnd5e-mod.journal-sheet form {
   display: flex;
   flex-direction: column;
@@ -572,31 +197,6 @@ a.inline-roll {
   flex-basis: 15px;
   position: relative;
   top: -3px;
-}
-
-/* Chat feedback */
-.symbaroum-dnd5e-mod.chat {
-  background-image: url(../images/journal/foreground.jpg);
-  border-radius: 6px;
-  border: 1px solid var(--dnd5e-color-gold);
-  margin: 0.375rem 0; 
-  & p {
-    margin: 0.375rem;
-  }
-
-  & h3 {
-    text-align:center;
-  }
-
-  & .roll-output {
-    display:flex;
-    justify-content: space-around;
-  }
-
-  & .roll-result {
-    font-weight: bolder;
-  }
-  
 }
 
 /*Journal Entry Input Border*/
@@ -634,11 +234,9 @@ a.inline-roll {
   border-radius: 3px;
 }
 
-.symbaroum-dnd5e-mod .journal-sheet form button[type='submit']:focus {
-  opacity: 100%;
-  box-shadow: 0 0 8px hsl(0, 0%, 50%);
-}
-
+/* ======================== */
+/* Journal Content Styling  */
+/* ======================== */
 .symbaroum-dnd5e-mod .content-link {
   color: hsl(39, 77%, 83%);
   background: transparent;
@@ -843,7 +441,6 @@ a.inline-roll {
 .symbaroum-dnd5e-mod .tdstyle2D {
   width: 50%;
   height: 18px;
-  /* text-align: center; */
 }
 
 .symbaroum-dnd5e-mod .blockquoteright {
@@ -1001,7 +598,6 @@ a.inline-roll {
   text-align: center;
   color: white;
 }
-/* Bottom left text */
 .symbaroum-dnd5e-mod .image-text-box {
   position: absolute;
   top: 187px;
@@ -1022,119 +618,4 @@ a.inline-roll {
   margin-right: auto;
   margin-bottom: 10px;
   margin-left: auto;
-}
-
-/* ======================== */
-/* Symbaroum Corruption Bar */
-/* ======================== */
-.syb5e-corruption-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
-  background: rgba(0, 0, 0, 0.15);
-  border-top: 1px solid rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  font-size: var(--font-size-12);
-}
-
-.syb5e-corruption-label {
-  font-weight: bold;
-  white-space: nowrap;
-  font-size: var(--font-size-13);
-}
-
-.syb5e-corruption-select {
-  max-width: 120px;
-  font-size: var(--font-size-11);
-  padding: 1px 4px;
-  height: auto;
-}
-
-.syb5e-corruption-note {
-  font-style: italic;
-  opacity: 0.8;
-}
-
-.syb5e-corruption-fields {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-}
-
-.syb5e-corruption-field {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.syb5e-corruption-field input {
-  width: 40px;
-  text-align: center;
-  font-size: var(--font-size-14);
-  padding: 2px;
-  height: auto;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.syb5e-corruption-field span {
-  font-size: var(--font-size-10);
-  opacity: 0.7;
-  white-space: nowrap;
-}
-
-.syb5e-corruption-value {
-  display: inline-block;
-  width: 40px;
-  text-align: center;
-  font-size: var(--font-size-14) !important;
-  font-weight: bold;
-  opacity: 1 !important;
-}
-
-.syb5e-corruption-op {
-  font-size: var(--font-size-14);
-  opacity: 0.6;
-}
-
-/* ======================== */
-/* Symbaroum Shadow Section */
-/* ======================== */
-.syb5e-shadow-section {
-  display: flex;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-  margin-bottom: 6px;
-}
-
-.syb5e-shadow-field {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.syb5e-shadow-field span {
-  font-weight: bold;
-  font-size: var(--font-size-12);
-  margin-bottom: 2px;
-}
-
-.syb5e-shadow-field textarea {
-  min-height: 40px;
-  font-size: var(--font-size-12);
-  resize: vertical;
-}
-
-/* ======================== */
-/* Extended Rest Button     */
-/* ======================== */
-.syb5e-extended-rest {
-  font-size: var(--font-size-11);
-  padding: 2px 6px;
-  cursor: pointer;
 }
